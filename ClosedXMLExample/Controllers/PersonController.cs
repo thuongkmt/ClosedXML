@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -41,11 +42,28 @@ namespace ClosedXMLExample.Controllers
             if (format == "csv")
             {
                 var csv = new StringBuilder();
+                string line = $"{nameof(Product.Name)},{nameof(Product.Price)},{nameof(Product.Description)}";
+                csv.AppendLine(line);
                 foreach (var product in productList)
                 {
-                    string line = $"{nameof(Product.Name)},{nameof(Product.Price)},{nameof(Product.Description)}";
-                    csv.AppendLine(line);
-                    line = string.Format("{0},{1},{2}", product.Name, product.Price, product.Description);
+                    string productName = "";
+                    string productDescription = "";
+                    if (product.Name.Contains(",")){
+                        productName = String.Format("\"{0}\"", product.Name);
+                    }
+                    else
+                    {
+                        productName = product.Name;
+                    }
+                    if (product.Description.Contains(","))
+                    {
+                        productDescription = String.Format("\"{0}\"", product.Description);
+                    }
+                    else
+                    {
+                        productDescription = product.Description;
+                    }
+                    line = string.Format("{0},{1},{2}", productName, product.Price, productDescription);
                     csv.AppendLine(line);
                 }
                 return File(Encoding.ASCII.GetBytes(csv.ToString()), "text/csv", "ProductList.csv");
@@ -97,8 +115,8 @@ namespace ClosedXMLExample.Controllers
         public IList<Product> GetProductList()
         {
             var productList = new List<Product>();
-            productList.Add(new Product { Name = "Acanon", Price = 10, Description = "From china" });
-            productList.Add(new Product { Name = "Monachi", Price = 50, Description = "From Brazil" });
+            productList.Add(new Product { Name = "Acanon, hali moto", Price = 10, Description = "From china, Hung yen" });
+            productList.Add(new Product { Name = "Monachi", Price = 50, Description = "From Brazil, Hai phong" });
             productList.Add(new Product { Name = "Acheno", Price = 100, Description = "From Amarica" });
             productList.Add(new Product { Name = "Natoshi", Price = 30, Description = "From Conton" });
 
